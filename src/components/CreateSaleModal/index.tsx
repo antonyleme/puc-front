@@ -16,10 +16,8 @@ import {
   Select,
   Table,
   Tbody,
-  Td,
   Th,
   Thead,
-  Tr,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 
@@ -35,24 +33,24 @@ const CreateSaleModal: React.FC<Props> = function ({
   submit,
 }) {
   const products: IProduct[] = [
-    {
-      name: 'Produto 1',
-      value: 10,
-      id: '1',
-      category: 'Categoria 1',
-    },
-    {
-      name: 'Produto 2',
-      value: 20,
-      id: '2',
-      category: 'Categoria 2',
-    },
-    {
-      name: 'Produto 3',
-      value: 30,
-      id: '3',
-      category: 'Categoria 3',
-    },
+    // {
+    //   name: 'Produto 1',
+    //   value: 10,
+    //   id: '1',
+    //   category: 'Categoria 1',
+    // },
+    // {
+    //   name: 'Produto 2',
+    //   value: 20,
+    //   id: '2',
+    //   category: 'Categoria 2',
+    // },
+    // {
+    //   name: 'Produto 3',
+    //   value: 30,
+    //   id: '3',
+    //   category: 'Categoria 3',
+    // },
   ];
 
   const [sales, setSales] = useState<IProduct[]>([]);
@@ -95,7 +93,7 @@ const CreateSaleModal: React.FC<Props> = function ({
                   }
                 >
                   <option>Selecione</option>
-                  {
+                  {/* {
                     products.map((product) => (
                       <option value={product.id}>
                         {product.name}
@@ -105,7 +103,7 @@ const CreateSaleModal: React.FC<Props> = function ({
                         {product.value.toFixed(2).replace('.', ',')}
                       </option>
                     ))
-                  }
+                  } */}
                 </Select>
                 <Button
                   colorScheme="blue"
@@ -124,7 +122,7 @@ const CreateSaleModal: React.FC<Props> = function ({
                 <Th>Ações</Th>
               </Thead>
               <Tbody>
-                {
+                {/* {
                   sales.map((sale, index) => (
                     <Tr key={sale.id}>
                       <Td>{sale.name}</Td>
@@ -143,7 +141,7 @@ const CreateSaleModal: React.FC<Props> = function ({
                       </Td>
                     </Tr>
                   ))
-                }
+                } */}
               </Tbody>
             </Table>
           </ModalBody>
