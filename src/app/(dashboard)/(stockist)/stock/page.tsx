@@ -5,11 +5,11 @@ import CreateProductEntriesModal from '@/components/CreateProductEntriesModal';
 import {
   Box,
   Button,
-  HStack,
   Table, Tbody, Td, Th, Thead, Tr, useDisclosure,
 } from '@chakra-ui/react';
 import moment from 'moment';
 import React from 'react';
+import useProducts from '../../(manager)/products/(hooks)/use-products';
 
 const Stock: React.FC = function () {
   const entries = Array.from({ length: 5 }).map((_, index) => ({
@@ -21,6 +21,8 @@ const Stock: React.FC = function () {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const { products, updateStock } = useProducts();
+
   return (
     <Card
       title="Estoque"
@@ -31,31 +33,30 @@ const Stock: React.FC = function () {
       <CreateProductEntriesModal
         isOpen={isOpen}
         onClose={onClose}
-        submit={async () => undefined}
+        submit={updateStock}
+        products={products || []}
       />
       <Box maxW="100%" overflow="auto">
         <Table>
           <Thead>
             <Th>Produto</Th>
-            <Th>Data</Th>
             <Th>Quantidade</Th>
-            <Th>Ações</Th>
+            {/* <Th>Ações</Th> */}
           </Thead>
           <Tbody>
             {
-              entries.map((entry) => (
-                <Tr key={entry.id}>
-                  <Td>{entry.name}</Td>
-                  <Td>{entry.date}</Td>
+              products?.map((product) => (
+                <Tr key={product.id}>
+                  <Td>{product.descricao}</Td>
                   <Td>
-                    {entry.qtd}
+                    {product.estoque}
                   </Td>
-                  <Td>
+                  {/* <Td>
                     <HStack>
                       <Button size="xs" colorScheme="red">Remover</Button>
                       <Button size="xs" colorScheme="blue">Editar</Button>
                     </HStack>
-                  </Td>
+                  </Td> */}
                 </Tr>
               ))
             }

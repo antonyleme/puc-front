@@ -1,5 +1,6 @@
 'use client';
 
+import { IProductForm } from '@/types';
 import {
   Button,
   FormControl,
@@ -12,13 +13,14 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  useToast,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Props {
   isOpen: boolean,
   onClose: () => void,
-  submit: () => Promise<void>,
+  submit: (form: IProductForm) => Promise<boolean>,
   isEdit?: boolean
 }
 
@@ -28,6 +30,51 @@ const CreateOrUpdateProductModal: React.FC<Props> = function ({
   submit,
   isEdit,
 }) {
+  const [name, setName] = useState('');
+  const [value, setValue] = useState('');
+  const [stock, setStock] = useState('');
+
+  const [submiting, setSubmiting] = useState(false);
+
+  const toast = useToast();
+
+  const handleSubmit = async (): Promise<void> => {
+    if (!value) {
+      toast({
+        status: 'info',
+        title: 'Informe um preço para o produto',
+      });
+      return;
+    }
+    if (!name) {
+      toast({
+        status: 'info',
+        title: 'Informe uma descrição para o produto',
+      });
+      return;
+    }
+    if (!stock) {
+      toast({
+        status: 'info',
+        title: 'Informe um estoque inicial para o produto',
+      });
+      return;
+    }
+    setSubmiting(true);
+    const success = await submit({
+      valor: parseFloat(value),
+      descricao: name,
+      estoque: parseInt(stock, 10) || 0,
+    });
+    if (success) {
+      onClose();
+      setName('');
+      setValue('');
+      setStock('');
+    }
+    setSubmiting(false);
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -43,20 +90,39 @@ const CreateOrUpdateProductModal: React.FC<Props> = function ({
           <ModalBody>
             <FormControl mb="16px">
               <FormLabel>Nome</FormLabel>
-              <Input />
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
             </FormControl>
             <FormControl mb="16px">
               <FormLabel>Preço</FormLabel>
-              <Input />
+              <Input
+                type="number"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
             </FormControl>
-            <FormControl mb="16px">
-              <FormLabel>Categoria</FormLabel>
-              <Input />
-            </FormControl>
+            {
+              !isEdit
+              && (
+                <FormControl mb="16px">
+                  <FormLabel>Estoque inicial</FormLabel>
+                  <Input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                  />
+                </FormControl>
+              )
+            }
           </ModalBody>
           <ModalFooter>
             <Button onClick={onClose} mr="8px">Cancelar</Button>
-            <Button colorScheme="blue" onClick={submit}>Salvar</Button>
+            <Button
+              colorScheme="blue"
+              isLoading={submiting}
+              onClick={handleSubmit}
+            >
+              Salvar
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>

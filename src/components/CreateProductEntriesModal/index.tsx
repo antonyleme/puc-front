@@ -30,35 +30,16 @@ import React, { useEffect, useState } from 'react';
 interface Props {
   isOpen: boolean,
   onClose: () => void,
-  submit: () => Promise<void>,
+  submit: (id: string, qtd: number) => Promise<boolean>,
+  products: IProduct[]
 }
 
 const CreateProductEntriesModal: React.FC<Props> = function ({
   isOpen,
   onClose,
   submit,
+  products,
 }) {
-  const products: IProduct[] = [
-    {
-      name: 'Produto 1',
-      value: 10,
-      id: '1',
-      category: 'Categoria 1',
-    },
-    {
-      name: 'Produto 2',
-      value: 20,
-      id: '2',
-      category: 'Categoria 2',
-    },
-    {
-      name: 'Produto 3',
-      value: 30,
-      id: '3',
-      category: 'Categoria 3',
-    },
-  ];
-
   const [entries, setEntries] = useState<IEntry[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<IProduct>();
   const [selectedQtd, setSelectedQtd] = useState('');
@@ -71,7 +52,8 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
     if (!selectedProduct) return;
 
     setEntries((old) => [...old, {
-      name: selectedProduct.name,
+      id: selectedProduct.id,
+      name: selectedProduct.descricao,
       qtd: selectedQtd,
     }]);
     setSelectedQtd('');
@@ -81,6 +63,21 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
     setSelectedProduct(undefined);
     setEntries([]);
   }, [isOpen]);
+
+  const [submiting, setSubmiting] = useState(false);
+  const handleSubmit = async (): Promise<void> => {
+    if (!selectedProduct) return;
+
+    setSubmiting(true);
+
+    const promises = entries.map(
+      (entry) => submit(entry.id, parseInt(entry.qtd, 10)),
+    );
+
+    await Promise.all(promises);
+
+    setSubmiting(false);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -111,11 +108,11 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
                   {
                     products.map((product) => (
                       <option value={product.id}>
-                        {product.name}
+                        {product.descricao}
                         {' '}
                         -
                         {' R$'}
-                        {product.value.toFixed(2).replace('.', ',')}
+                        {product.valor.toFixed(2).replace('.', ',')}
                       </option>
                     ))
                   }
@@ -173,7 +170,11 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
           </ModalBody>
           <ModalFooter>
             <Button onClick={onClose} mr="8px">Cancelar</Button>
-            <Button colorScheme="blue" onClick={submit}>
+            <Button
+              colorScheme="blue"
+              onClick={handleSubmit}
+              isLoading={submiting}
+            >
               Cadastrar Entradas
             </Button>
           </ModalFooter>

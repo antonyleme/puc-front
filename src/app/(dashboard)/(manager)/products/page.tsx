@@ -8,7 +8,9 @@ import {
   HStack,
   Table, Tbody, Td, Th, Thead, Tr, useDisclosure,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
+import { IProduct } from '@/types';
+import useProducts from './(hooks)/use-products';
 
 const Products: React.FC = function () {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -17,6 +19,23 @@ const Products: React.FC = function () {
     onOpen: createOnOpen,
     onClose: createOnClose,
   } = useDisclosure();
+
+  const {
+    products, removeProduct, createProduct, updateProduct,
+  } = useProducts();
+
+  const [activeProduct, setActiveProduct] = useState<IProduct>();
+  const [removingId, setRemovingId] = useState<string>();
+  const handleRemove = async (id: string): Promise<void> => {
+    setRemovingId(id);
+    await removeProduct(id);
+    setRemovingId(undefined);
+  };
+
+  const handleOpenEdit = (product: IProduct): void => {
+    setActiveProduct(product);
+    onOpen();
+  };
 
   return (
     <Card
@@ -35,41 +54,59 @@ const Products: React.FC = function () {
           <Thead>
             <Th>Nome</Th>
             <Th>Preço</Th>
-            <Th>Categoria</Th>
             <Th>Ações</Th>
           </Thead>
           <Tbody>
-            <Tr>
-              <Td>Produto 1</Td>
-              <Td>R$10,99</Td>
-              <Td>Categoria 1</Td>
-              <Td>
-                <HStack>
-                  <Button
-                    size="xs"
-                    colorScheme="blue"
-                    onClick={onOpen}
-                  >
-                    Editar
-                  </Button>
-                  <Button size="xs" colorScheme="red">Remover</Button>
-                </HStack>
-              </Td>
-            </Tr>
+            {
+              products?.map((product) => (
+                <Tr key={product.id}>
+                  <Td>{product.descricao}</Td>
+                  <Td>
+                    R$
+                    {product.valor.toFixed(2).replace('.', ',')}
+                  </Td>
+                  <Td>
+                    <HStack>
+                      <Button
+                        size="xs"
+                        colorScheme="blue"
+                        onClick={() => handleOpenEdit(product)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        size="xs"
+                        colorScheme="red"
+                        onClick={() => handleRemove(product.id)}
+                        isLoading={!!removingId}
+                      >
+                        Remover
+                      </Button>
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))
+            }
           </Tbody>
         </Table>
       </Box>
 
-      <CreateOrUpdateProductModal
-        isEdit
-        isOpen={isOpen}
-        onClose={onClose}
-        submit={async () => undefined}
-      />
+      {
+        activeProduct
+        && (
+          <CreateOrUpdateProductModal
+            isEdit
+            isOpen={isOpen}
+            onClose={onClose}
+            submit={(data) => updateProduct(activeProduct.id, data)}
+          />
+        )
+      }
+
       <CreateOrUpdateProductModal
         isOpen={createIsOpen}
         onClose={createOnClose}
-        submit={async () => undefined}
+        submit={createProduct}
       />
     </Card>
   );
