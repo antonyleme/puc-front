@@ -76,6 +76,11 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
 
     await Promise.all(promises);
 
+    setSelectedProduct(undefined);
+    setEntries([]);
+    setSelectedQtd('');
+
+    onClose();
     setSubmiting(false);
   };
 
@@ -100,8 +105,11 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
                   value={selectedProduct?.id}
                   onChange={
                     (e) => setSelectedProduct(
-                      products.find((p) => p.id === e.target.value),
+                      products.find(
+                        (p) => p.id.toString() === e.target.value.toString(),
+                      ),
                     )
+
                   }
                 >
                   <option>Selecione</option>
