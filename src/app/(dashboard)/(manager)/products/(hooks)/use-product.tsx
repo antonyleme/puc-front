@@ -31,7 +31,7 @@ const useProduct = (id?: string): IUseProduct => {
       await mutate();
       toast({
         status: 'success',
-        title: 'Produto criado com sucesso',
+        title: 'Produto editado com sucesso',
       });
       return true;
     } catch (error) {
