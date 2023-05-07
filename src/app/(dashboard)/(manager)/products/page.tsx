@@ -99,6 +99,7 @@ const Products: React.FC = function () {
             isOpen={isOpen}
             onClose={onClose}
             submit={(data) => updateProduct(activeProduct.id, data)}
+            product={activeProduct}
           />
         )
       }

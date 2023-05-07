@@ -1,6 +1,6 @@
 'use client';
 
-import { IProductForm } from '@/types';
+import { IProduct, IProductForm } from '@/types';
 import {
   Button,
   FormControl,
@@ -15,13 +15,14 @@ import {
   ModalOverlay,
   useToast,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   isOpen: boolean,
   onClose: () => void,
   submit: (form: IProductForm) => Promise<boolean>,
-  isEdit?: boolean
+  isEdit?: boolean,
+  product?: IProduct
 }
 
 const CreateOrUpdateProductModal: React.FC<Props> = function ({
@@ -29,6 +30,7 @@ const CreateOrUpdateProductModal: React.FC<Props> = function ({
   onClose,
   submit,
   isEdit,
+  product,
 }) {
   const [name, setName] = useState('');
   const [value, setValue] = useState('');
@@ -37,6 +39,13 @@ const CreateOrUpdateProductModal: React.FC<Props> = function ({
   const [submiting, setSubmiting] = useState(false);
 
   const toast = useToast();
+
+  useEffect(() => {
+    if (product) {
+      setName(product.descricao);
+      setValue(product.valor.toString());
+    }
+  }, [product]);
 
   const handleSubmit = async (): Promise<void> => {
     if (!value) {
@@ -53,7 +62,7 @@ const CreateOrUpdateProductModal: React.FC<Props> = function ({
       });
       return;
     }
-    if (!stock) {
+    if (!stock && !product) {
       toast({
         status: 'info',
         title: 'Informe um estoque inicial para o produto',

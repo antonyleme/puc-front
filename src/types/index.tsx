@@ -22,5 +22,5 @@ export interface IUseFetch {
 export interface IProductForm {
   descricao: string,
   valor: number,
-  estoque: number
+  estoque?: number
 }
