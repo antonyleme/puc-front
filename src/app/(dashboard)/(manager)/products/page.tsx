@@ -77,7 +77,7 @@ const Products: React.FC = function () {
                       <Button
                         size="xs"
                         colorScheme="red"
-                        onClick={() => handleRemove(product.id)}
+                        onClick={() => handleRemove(product.id as string)}
                         isLoading={!!removingId}
                       >
                         Remover
