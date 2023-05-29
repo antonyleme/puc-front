@@ -7,18 +7,10 @@ import {
   Button,
   Table, Tbody, Td, Th, Thead, Tr, useDisclosure,
 } from '@chakra-ui/react';
-import moment from 'moment';
 import React from 'react';
 import useProducts from '../../(manager)/products/(hooks)/use-products';
 
 const Stock: React.FC = function () {
-  const entries = Array.from({ length: 5 }).map((_, index) => ({
-    id: index,
-    name: `Produto ${index + 1}`,
-    date: moment().add(index, 'day').format('DD/MM/YYYY'),
-    qtd: 1,
-  }));
-
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { products, updateStock } = useProducts();

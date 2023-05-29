@@ -1,5 +1,6 @@
 'use client';
 
+import { IUser, IUserForm } from '@/types';
 import {
   Button,
   FormControl,
@@ -12,15 +13,15 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   isOpen: boolean,
   onClose: () => void,
-  submit: () => Promise<void>,
-  isEdit?: boolean
+  submit: (form: IUserForm) => Promise<boolean>,
+  isEdit?: boolean,
+  user?: IUser | undefined
 }
 
 const CreateOrUpdateUserModal: React.FC<Props> = function ({
@@ -28,7 +29,23 @@ const CreateOrUpdateUserModal: React.FC<Props> = function ({
   onClose,
   submit,
   isEdit,
+  user,
 }) {
+  const [name, setName] = useState(user?.nome);
+
+  useEffect(() => {
+    if (user) { setName(user?.nome); }
+  }, [user]);
+
+  const [submiting, setSubmiting] = useState(false);
+  const handleSubmit = async (): Promise<void> => {
+    setSubmiting(true);
+    if (name) {
+      const success = await submit({ nome: name });
+      if (success) { onClose(); }
+    }
+    setSubmiting(false);
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -44,9 +61,9 @@ const CreateOrUpdateUserModal: React.FC<Props> = function ({
           <ModalBody>
             <FormControl mb="16px">
               <FormLabel>Nome</FormLabel>
-              <Input />
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
             </FormControl>
-            <FormControl mb="16px">
+            {/* <FormControl mb="16px">
               <FormLabel>Email</FormLabel>
               <Input type="email" />
             </FormControl>
@@ -65,11 +82,23 @@ const CreateOrUpdateUserModal: React.FC<Props> = function ({
             <FormControl mb="16px">
               <FormLabel>Senha</FormLabel>
               <Input type="password" />
-            </FormControl>
+            </FormControl> */}
           </ModalBody>
           <ModalFooter>
-            <Button onClick={onClose} mr="8px">Cancelar</Button>
-            <Button colorScheme="blue" onClick={submit}>Salvar</Button>
+            <Button
+              onClick={onClose}
+              mr="8px"
+            >
+              Cancelar
+            </Button>
+            <Button
+              colorScheme="blue"
+              isDisabled={!name}
+              onClick={handleSubmit}
+              isLoading={submiting}
+            >
+              Salvar
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>

@@ -7,17 +7,14 @@ import {
   Button,
   Table, Tbody, Td, Th, Thead, Tr, useDisclosure,
 } from '@chakra-ui/react';
-import moment from 'moment';
 import React from 'react';
+import moment from 'moment';
+import useSales from './(hooks)/use-sales';
+import useProducts from '../../(manager)/products/(hooks)/use-products';
 
 const Sales: React.FC = function () {
-  const sales = Array.from({ length: 5 }).map((_, index) => ({
-    id: index,
-    name: `Produto ${index + 1}`,
-    seller: 'Antony Leme',
-    date: moment().add(index, 'day').format('DD/MM/YYYY'),
-    Valor: Math.random() * (100 - 10) + 10,
-  }));
+  const { sales, createSale } = useSales();
+  const { products } = useProducts();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -31,30 +28,38 @@ const Sales: React.FC = function () {
       <CreateSaleModal
         isOpen={isOpen}
         onClose={onClose}
-        submit={async () => undefined}
+        submit={createSale}
       />
       <Box maxW="100%" overflow="auto">
         <Table>
           <Thead>
             <Th>Produto</Th>
-            <Th>Data</Th>
             <Th>Valor</Th>
-            <Th>Ações</Th>
+            <Th>Vendedor</Th>
+            <Th>Data</Th>
           </Thead>
           <Tbody>
             {
-              sales.map((sale) => (
-                <Tr key={sale.id}>
-                  <Td>{sale.name}</Td>
-                  <Td>{sale.date}</Td>
-                  <Td>
-                    R$
-                    {sale.Valor.toFixed(2).replace('.', ',')}
-                  </Td>
-                  <Td>
-                    <Button size="xs" colorScheme="red">Remover</Button>
-                  </Td>
-                </Tr>
+              sales?.map((sale) => (
+                sale.produtos.map((product) => (
+                  <Tr key={`${product.produtoId}-${sale.id}`}>
+                    <Td>
+                      {
+                        products?.find(
+                          (p) => p.id === product.produtoId,
+                        )?.descricao
+                      }
+                    </Td>
+                    <Td>{product.produtoValor}</Td>
+                    <Td>{sale.vendedor.nome}</Td>
+                    <Td>
+                      {
+                        moment(sale.dataVenda).format('MM/DD/YYYY [-] HH:mm')
+                      }
+
+                    </Td>
+                  </Tr>
+                ))
               ))
             }
           </Tbody>

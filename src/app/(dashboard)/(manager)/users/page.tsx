@@ -8,7 +8,9 @@ import {
   HStack,
   Table, Tbody, Td, Th, Thead, Tr, useDisclosure,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
+import { IUser } from '@/types';
+import useUsers from './(hooks)/use-users';
 
 const Users: React.FC = function () {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -17,6 +19,18 @@ const Users: React.FC = function () {
     onOpen: createOnOpen,
     onClose: createOnClose,
   } = useDisclosure();
+
+  const {
+    users, createUser, updateUser, removeUser,
+  } = useUsers();
+  const [selectedUser, setSelectedUser] = useState<IUser>();
+
+  const [removing, setRemoving] = useState<number>();
+  const handleRemove = async (id: number): Promise<void> => {
+    setRemoving(id);
+    await removeUser(id.toString());
+    setRemoving(undefined);
+  };
 
   return (
     <Card
@@ -34,44 +48,58 @@ const Users: React.FC = function () {
         <Table>
           <Thead>
             <Th>Nome</Th>
-            <Th>Email</Th>
-            <Th>CPF</Th>
-            <Th>Cargo</Th>
             <Th>Ações</Th>
           </Thead>
           <Tbody>
-            <Tr>
-              <Td>Antony Leme</Td>
-              <Td>antony@puc.com.br</Td>
-              <Td>14827229686</Td>
-              <Td>Estoquista</Td>
-              <Td>
-                <HStack>
-                  <Button
-                    size="xs"
-                    colorScheme="blue"
-                    onClick={onOpen}
-                  >
-                    Editar
-                  </Button>
-                  <Button size="xs" colorScheme="red">Remover</Button>
-                </HStack>
-              </Td>
-            </Tr>
+            {
+              users?.map((user) => (
+                <Tr key={user.id}>
+                  <Td>{user.nome}</Td>
+                  <Td>
+                    <HStack>
+                      <Button
+                        size="xs"
+                        colorScheme="blue"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          onOpen();
+                        }}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        size="xs"
+                        colorScheme="red"
+                        isLoading={removing === user.id}
+                        onClick={() => handleRemove(user.id)}
+                      >
+                        Remover
+                      </Button>
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))
+            }
           </Tbody>
         </Table>
       </Box>
 
-      <CreateOrUpdateUserModal
-        isEdit
-        isOpen={isOpen}
-        onClose={onClose}
-        submit={async () => undefined}
-      />
+      {
+        selectedUser
+        && (
+          <CreateOrUpdateUserModal
+            isEdit
+            isOpen={isOpen}
+            onClose={onClose}
+            submit={(form) => updateUser(selectedUser.id.toString(), form)}
+            user={selectedUser}
+          />
+        )
+      }
       <CreateOrUpdateUserModal
         isOpen={createIsOpen}
         onClose={createOnClose}
-        submit={async () => undefined}
+        submit={createUser}
       />
     </Card>
   );

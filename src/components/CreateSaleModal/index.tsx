@@ -1,6 +1,9 @@
 'use client';
 
-import { IProduct } from '@/types';
+import useProducts
+  from '@/app/(dashboard)/(manager)/products/(hooks)/use-products';
+import useUsers from '@/app/(dashboard)/(manager)/users/(hooks)/use-users';
+import { IProduct, ISale } from '@/types';
 import {
   Button,
   FormControl,
@@ -16,15 +19,17 @@ import {
   Select,
   Table,
   Tbody,
+  Td,
   Th,
   Thead,
+  Tr,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
   isOpen: boolean,
   onClose: () => void,
-  submit: () => Promise<void>,
+  submit: (sales: ISale[]) => Promise<boolean>,
 }
 
 const CreateSaleModal: React.FC<Props> = function ({
@@ -32,29 +37,12 @@ const CreateSaleModal: React.FC<Props> = function ({
   onClose,
   submit,
 }) {
-  const products: IProduct[] = [
-    // {
-    //   name: 'Produto 1',
-    //   value: 10,
-    //   id: '1',
-    //   category: 'Categoria 1',
-    // },
-    // {
-    //   name: 'Produto 2',
-    //   value: 20,
-    //   id: '2',
-    //   category: 'Categoria 2',
-    // },
-    // {
-    //   name: 'Produto 3',
-    //   value: 30,
-    //   id: '3',
-    //   category: 'Categoria 3',
-    // },
-  ];
+  const { products } = useProducts();
+  const { users } = useUsers();
 
-  const [sales, setSales] = useState<IProduct[]>([]);
+  const [sales, setSales] = useState<ISale[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<IProduct>();
+  const [selectedUser, setSelectedUser] = useState<string>();
 
   const remove = (index: number): void => {
     setSales((old) => old.filter((sale, i) => i !== index));
@@ -62,14 +50,28 @@ const CreateSaleModal: React.FC<Props> = function ({
 
   const add = (): void => {
     if (!selectedProduct) return;
+    const user = users?.find((u) => u.id.toString() === selectedUser);
+    if (!user) return;
 
-    setSales((old) => [...old, selectedProduct]);
+    setSales((old) => [...old, { product: selectedProduct, user }]);
   };
 
   useEffect(() => {
     setSelectedProduct(undefined);
     setSales([]);
   }, [isOpen]);
+
+  const [submiting, setSubmiting] = useState(false);
+  const handleSubmit = async (): Promise<void> => {
+    setSubmiting(true);
+    const success = await submit(sales);
+    if (success) {
+      setSales([]);
+      setSelectedProduct(undefined);
+      setSelectedUser(undefined);
+    }
+    setSubmiting(false);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -81,55 +83,77 @@ const CreateSaleModal: React.FC<Props> = function ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl mb="32px">
-              <FormLabel>Produto</FormLabel>
-              <HStack>
+            <HStack mb="16px">
+              <FormControl>
+                <FormLabel>Produto</FormLabel>
                 <Select
                   value={selectedProduct?.id}
                   onChange={
                     (e) => setSelectedProduct(
-                      products.find((p) => p.id === e.target.value),
+                      products?.find((p) => p.id.toString() === e.target.value),
                     )
                   }
                 >
                   <option>Selecione</option>
-                  {/* {
-                    products.map((product) => (
+                  {
+                    products?.map((product) => (
                       <option value={product.id}>
-                        {product.name}
+                        {product.descricao}
                         {' '}
                         -
                         {' R$'}
-                        {product.value.toFixed(2).replace('.', ',')}
+                        {product.valor.toFixed(2).replace('.', ',')}
                       </option>
                     ))
-                  } */}
+                  }
                 </Select>
-                <Button
-                  colorScheme="blue"
-                  onClick={add}
-                  isDisabled={!selectedProduct}
+              </FormControl>
+              <FormControl>
+                <FormLabel>Vendedor</FormLabel>
+                <Select
+                  value={selectedUser}
+                  onChange={
+                    (e) => setSelectedUser(e.target.value)
+                  }
                 >
-                  Adicionar
-                </Button>
-              </HStack>
-            </FormControl>
+                  <option>Selecione</option>
+                  {
+                    users?.map((user) => (
+                      <option value={user.id}>
+                        {user.nome}
+                      </option>
+                    ))
+                  }
+                </Select>
+              </FormControl>
+            </HStack>
+            <Button
+              colorScheme="blue"
+              onClick={add}
+              isDisabled={!selectedProduct || !selectedUser}
+              w="100%"
+              mb="32px"
+            >
+              Adicionar
+            </Button>
 
             <Table mb="32px">
               <Thead>
                 <Th>Produto</Th>
                 <Th>Preço</Th>
+                <Th>Vendedor</Th>
                 <Th>Ações</Th>
               </Thead>
               <Tbody>
-                {/* {
+                {
                   sales.map((sale, index) => (
-                    <Tr key={sale.id}>
-                      <Td>{sale.name}</Td>
+                    <Tr>
+                      <Td>{sale.product.descricao}</Td>
                       <Td>
                         R$
-                        {sale.value.toFixed(2).replace('.', ',')}
+                        {sale.product.valor.toFixed(2).replace('.', ',')}
                       </Td>
+                      <Td>{sale.user.nome}</Td>
                       <Td>
                         <Button
                           colorScheme="red"
@@ -141,13 +165,19 @@ const CreateSaleModal: React.FC<Props> = function ({
                       </Td>
                     </Tr>
                   ))
-                } */}
+                }
               </Tbody>
             </Table>
           </ModalBody>
           <ModalFooter>
             <Button onClick={onClose} mr="8px">Cancelar</Button>
-            <Button colorScheme="blue" onClick={submit}>Finalizar Venda</Button>
+            <Button
+              colorScheme="blue"
+              onClick={handleSubmit}
+              isLoading={submiting}
+            >
+              Finalizar Venda
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>
