@@ -52,7 +52,7 @@ const CreateProductEntriesModal: React.FC<Props> = function ({
     if (!selectedProduct) return;
 
     setEntries((old) => [...old, {
-      id: selectedProduct.id,
+      id: selectedProduct.id as string,
       name: selectedProduct.descricao,
       qtd: selectedQtd,
     }]);
