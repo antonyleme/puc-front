@@ -98,7 +98,7 @@ const Products: React.FC = function () {
             isEdit
             isOpen={isOpen}
             onClose={onClose}
-            submit={(data) => updateProduct(activeProduct.id, data)}
+            submit={(data) => updateProduct(activeProduct.id as string, data)}
             product={activeProduct}
           />
         )
