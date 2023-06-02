@@ -21,7 +21,7 @@ const useSales = (): IUseSales => {
 
   const createSale = async (newSales: ISale[]): Promise<boolean> => {
     try {
-      await api.post('/vendedor', {
+      await api.post('/venda', {
         dataVenda: moment().toISOString(),
         formaPagamento: 1,
         vendedorId: newSales?.[0].user.id,
