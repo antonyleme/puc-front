@@ -1,3 +1,6 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
+
 'use client';
 
 import Card from '@/components/Card';
@@ -8,8 +11,7 @@ import {
   Input,
   Table, Tbody, Td, Th, Thead, Tr,
 } from '@chakra-ui/react';
-import moment from 'moment';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   LineChart,
@@ -19,25 +21,88 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  YAxis,
 } from 'recharts';
+import moment from 'moment';
+import { ISaleChart, ISaleItem } from '@/types';
+import useSales from '../../(seller)/sales/(hooks)/use-sales';
+import useProducts from '../products/(hooks)/use-products';
 
 const Sales: React.FC = function () {
-  const sales = Array.from({ length: 10 }).map((_, index) => ({
-    id: index,
-    name: `Produto ${index + 1}`,
-    seller: 'Antony Leme',
-    date: moment().add(index, 'day').format('DD/MM/YYYY'),
-    Valor: Math.random() * (100 - 10) + 10,
-  }));
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const { products } = useProducts();
+
+  const { sales, filter } = useSales();
+
+  const [filtering, setFiltering] = useState(false);
+  const handleFilter = async (): Promise<void> => {
+    setFiltering(true);
+    await filter(startDate, endDate);
+    setFiltering(false);
+  };
+
+  function calcularSomaProdutosPorData(vendas: ISaleItem[]): ISaleChart[] {
+    const somaProdutosPorData: { [data: string]: number } = {};
+
+    for (const venda of vendas) {
+      const dataVenda = venda.dataVenda.split('T')[0];
+      let somaProdutos = 0;
+
+      for (const produto of venda.produtos) {
+        somaProdutos += produto.produtoValor;
+      }
+
+      if (somaProdutosPorData[dataVenda]) {
+        somaProdutosPorData[dataVenda] += somaProdutos;
+      } else {
+        somaProdutosPorData[dataVenda] = somaProdutos;
+      }
+    }
+
+    const resultado: ISaleChart[] = [];
+
+    for (const dataVenda in somaProdutosPorData) {
+      resultado.push({
+        dataVenda,
+        somaProdutos: somaProdutosPorData[dataVenda],
+      });
+    }
+
+    return resultado;
+  }
+
+  const [chartData, setChartData] = useState<ISaleChart[]>([]);
+
+  useEffect(() => {
+    if (sales) { setChartData(calcularSomaProdutosPorData(sales)); }
+  }, [sales]);
 
   return (
     <Card
       title="Histórico de Vendas"
       action={(
         <HStack>
-          <Input type="date" mr="16px" />
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
           <Box>
-            <Button colorScheme="blue">Gerar relatório</Button>
+            <Button
+              colorScheme="blue"
+              isLoading={filtering}
+              onClick={handleFilter}
+              isDisabled={!startDate || !endDate}
+            >
+              Filtrar
+            </Button>
           </Box>
         </HStack>
       )}
@@ -47,7 +112,7 @@ const Sales: React.FC = function () {
           <LineChart
             width={500}
             height={300}
-            data={sales}
+            data={chartData}
             margin={{
               top: 5,
               right: 30,
@@ -56,7 +121,8 @@ const Sales: React.FC = function () {
             }}
           >
             <CartesianGrid strokeDasharray="5 5" />
-            <XAxis dataKey="date" />
+            <YAxis dataKey="somaProdutos" />
+            <XAxis dataKey="dataVenda" />
             {/* <YAxis /> */}
             <Tooltip
               labelFormatter={(value) => `Data: ${value}`}
@@ -80,22 +146,32 @@ const Sales: React.FC = function () {
         <Table>
           <Thead>
             <Th>Produto</Th>
+            <Th>Valor</Th>
             <Th>Vendedor</Th>
             <Th>Data</Th>
-            <Th>Valor</Th>
           </Thead>
           <Tbody>
             {
-              sales.map((sale) => (
-                <Tr key={sale.id}>
-                  <Td>{sale.name}</Td>
-                  <Td>{sale.seller}</Td>
-                  <Td>{sale.date}</Td>
-                  <Td>
-                    R$
-                    {sale.Valor.toFixed(2).replace('.', ',')}
-                  </Td>
-                </Tr>
+              sales?.map((sale) => (
+                sale.produtos.map((product) => (
+                  <Tr key={`${product.produtoId}-${sale.id}`}>
+                    <Td>
+                      {
+                        products?.find(
+                          (p) => p.id === product.produtoId,
+                        )?.descricao
+                      }
+                    </Td>
+                    <Td>{product.produtoValor}</Td>
+                    <Td>{sale.vendedor.nome}</Td>
+                    <Td>
+                      {
+                        moment(sale.dataVenda).format('MM/DD/YYYY [-] HH:mm')
+                      }
+
+                    </Td>
+                  </Tr>
+                ))
               ))
             }
           </Tbody>

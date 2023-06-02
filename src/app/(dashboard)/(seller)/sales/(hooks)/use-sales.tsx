@@ -9,6 +9,7 @@ interface IUseSales {
   sales: ISaleItem[] | undefined,
   createSale: (sales: ISale[]) => Promise<boolean>,
   removeSale: (id: string) => Promise<boolean>,
+  filter: (startDate: string, endDate: string) => Promise<void>
 }
 
 interface IFetch extends IUseFetch {
@@ -33,7 +34,7 @@ const useSales = (): IUseSales => {
       await mutate();
       toast({
         status: 'success',
-        title: 'Vendedor criado com sucesso',
+        title: 'Venda cadastrada com sucesso',
       });
       return true;
     } catch (error) {
@@ -63,10 +64,25 @@ const useSales = (): IUseSales => {
     }
   };
 
+  const filter = async (startDate: string, endDate: string): Promise<void> => {
+    try {
+      const { data } = await api.get(
+        `/venda?startDate=${startDate}&endDate=${endDate}`,
+      );
+      mutate(data);
+    } catch (error) {
+      toast({
+        status: 'error',
+        title: 'Algo de errado aconteceu',
+      });
+    }
+  };
+
   return {
     sales,
     createSale,
     removeSale,
+    filter,
   };
 };
 

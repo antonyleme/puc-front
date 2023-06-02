@@ -11,6 +11,11 @@ export interface ISale {
   user: IUser,
 }
 
+export interface ISaleChart {
+  dataVenda: string,
+  somaProdutos: number
+}
+
 export interface ISaleItem {
   id: number,
   dataVenda: string,
