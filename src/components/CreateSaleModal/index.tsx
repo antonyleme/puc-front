@@ -83,6 +83,24 @@ const CreateSaleModal: React.FC<Props> = function ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <FormControl mb="24px">
+              <FormLabel>Vendedor</FormLabel>
+              <Select
+                value={selectedUser}
+                onChange={
+                  (e) => setSelectedUser(e.target.value)
+                }
+              >
+                <option>Selecione</option>
+                {
+                  users?.map((user) => (
+                    <option value={user.id}>
+                      {user.nome}
+                    </option>
+                  ))
+                }
+              </Select>
+            </FormControl>
             <HStack mb="16px">
               <FormControl>
                 <FormLabel>Produto</FormLabel>
@@ -103,24 +121,6 @@ const CreateSaleModal: React.FC<Props> = function ({
                         -
                         {' R$'}
                         {product.valor.toFixed(2).replace('.', ',')}
-                      </option>
-                    ))
-                  }
-                </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Vendedor</FormLabel>
-                <Select
-                  value={selectedUser}
-                  onChange={
-                    (e) => setSelectedUser(e.target.value)
-                  }
-                >
-                  <option>Selecione</option>
-                  {
-                    users?.map((user) => (
-                      <option value={user.id}>
-                        {user.nome}
                       </option>
                     ))
                   }
