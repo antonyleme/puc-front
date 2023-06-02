@@ -18,10 +18,10 @@ import {
   Line,
   XAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
   YAxis,
+  Tooltip,
 } from 'recharts';
 import moment from 'moment';
 import { ISaleChart, ISaleItem } from '@/types';
@@ -65,7 +65,7 @@ const Sales: React.FC = function () {
 
     for (const dataVenda in somaProdutosPorData) {
       resultado.push({
-        dataVenda,
+        dataVenda: moment(dataVenda).format('MM/DD/YYYY'),
         somaProdutos: somaProdutosPorData[dataVenda],
       });
     }
@@ -76,7 +76,10 @@ const Sales: React.FC = function () {
   const [chartData, setChartData] = useState<ISaleChart[]>([]);
 
   useEffect(() => {
-    if (sales) { setChartData(calcularSomaProdutosPorData(sales)); }
+    if (sales) {
+      console.log('ache', calcularSomaProdutosPorData(sales));
+      setChartData(calcularSomaProdutosPorData(sales));
+    }
   }, [sales]);
 
   return (
@@ -123,7 +126,6 @@ const Sales: React.FC = function () {
             <CartesianGrid strokeDasharray="5 5" />
             <YAxis dataKey="somaProdutos" />
             <XAxis dataKey="dataVenda" />
-            {/* <YAxis /> */}
             <Tooltip
               labelFormatter={(value) => `Data: ${value}`}
               formatter={
@@ -132,11 +134,12 @@ const Sales: React.FC = function () {
             />
             <Legend />
             <Line
-              dataKey="Valor"
+              dataKey="somaProdutos"
               stroke="#005398"
               activeDot={{ r: 8 }}
               strokeWidth={2}
               dot={{ r: 4 }}
+              name="Soma total"
             />
           </LineChart>
         </ResponsiveContainer>
