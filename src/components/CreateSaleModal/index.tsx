@@ -90,6 +90,7 @@ const CreateSaleModal: React.FC<Props> = function ({
                 onChange={
                   (e) => setSelectedUser(e.target.value)
                 }
+                isDisabled={!!sales.length}
               >
                 <option>Selecione</option>
                 {
