@@ -25,7 +25,7 @@ import {
 } from 'recharts';
 import moment from 'moment';
 import { ISaleChart, ISaleItem } from '@/types';
-import useSales from '../../(seller)/sales/(hooks)/use-sales';
+import useSales from '../../(seller)/(sales)/(hooks)/use-sales';
 import useProducts from '../products/(hooks)/use-products';
 
 const Sales: React.FC = function () {
