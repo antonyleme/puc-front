@@ -23,7 +23,7 @@ const useUser = (id?: string): IUseUser => {
     productId?: string,
   ): Promise<boolean> => {
     try {
-      await api.patch(`/vendedor/${productId || id}`, form);
+      await api.patch(`/vendedor/${productId || id}?nome=${form.nome}`);
       await mutate();
       toast({
         status: 'success',
