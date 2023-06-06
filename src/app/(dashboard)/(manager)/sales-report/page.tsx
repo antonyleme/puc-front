@@ -171,7 +171,7 @@ const Sales: React.FC = function () {
                     <Td>{sale.vendedor.nome}</Td>
                     <Td>
                       {
-                        moment(sale.dataVenda).format('MM/DD/YYYY [-] HH:mm')
+                        moment(sale.dataVenda).format('DD/MM/YYYY [-] HH:mm')
                       }
 
                     </Td>
