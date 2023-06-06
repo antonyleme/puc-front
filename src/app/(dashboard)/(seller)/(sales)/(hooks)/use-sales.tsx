@@ -17,7 +17,7 @@ interface IFetch extends IUseFetch {
 }
 
 const useSales = (): IUseSales => {
-  const { data: sales, mutate }: IFetch = useFetch('/venda');
+  const { data: sales, mutate }: IFetch = useFetch('/venda', true);
   const toast = useToast();
 
   const createSale = async (newSales: ISale[]): Promise<boolean> => {

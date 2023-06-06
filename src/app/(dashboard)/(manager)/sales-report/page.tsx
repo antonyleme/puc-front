@@ -91,11 +91,13 @@ const Sales: React.FC = function () {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
           />
           <Input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
           />
           <Box>
             <Button
