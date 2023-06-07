@@ -71,10 +71,11 @@ const useSales = (): IUseSales => {
       );
       mutate(data, false);
     } catch (error) {
-      toast({
-        status: 'error',
-        title: 'Algo de errado aconteceu',
-      });
+      // toast({
+      //   status: 'error',
+      //   title: 'Algo de errado aconteceu',
+      // });
+      mutate([], false);
     }
   };
 
