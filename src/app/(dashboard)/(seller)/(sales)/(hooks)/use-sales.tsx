@@ -69,7 +69,7 @@ const useSales = (): IUseSales => {
       const { data } = await api.get(
         `/venda?startDate=${startDate}&endDate=${endDate}`,
       );
-      mutate(data);
+      mutate(data, false);
     } catch (error) {
       toast({
         status: 'error',
