@@ -80,7 +80,11 @@ const useSales = (): IUseSales => {
   };
 
   return {
-    sales,
+    sales: sales?.sort((a, b) => {
+      const dataA = new Date(a.dataVenda);
+      const dataB = new Date(b.dataVenda);
+      return dataA.getTime() - dataB.getTime();
+    }),
     createSale,
     removeSale,
     filter,
