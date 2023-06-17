@@ -65,7 +65,7 @@ const Sales: React.FC = function () {
 
     for (const dataVenda in somaProdutosPorData) {
       resultado.push({
-        dataVenda: moment(dataVenda).format('MM/DD/YYYY'),
+        dataVenda: moment(dataVenda).format('DD/MM/YYYY'),
         somaProdutos: somaProdutosPorData[dataVenda],
       });
     }
