@@ -9,7 +9,7 @@ export interface IUseFetch {
 }
 
 export const api = axios.create(
-  { baseURL: 'https://cev-api.azurewebsites.net' },
+  { baseURL: 'https://cev-v1.azurewebsites.net/' },
 );
 
 const useFetch = (
